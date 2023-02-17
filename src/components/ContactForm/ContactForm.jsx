@@ -1,33 +1,32 @@
-import { nanoid } from 'nanoid';
-import { useDispatch } from 'react-redux';
-import style from './ContactForm.module.css';
-import { addContact } from 'redux/contacts/contactsOperations';
+import { useDispatch, useSelector } from 'react-redux';
+import contactsOperations from 'redux/contacts/contactsOperations';
+import { getContacts } from 'redux/contacts/contactsSelector';
 
-export const ContactForm = ({ contactsList }) => {
+export const ContactForm = () => {
     const dispatch = useDispatch();
+    const contacts = useSelector(getContacts);
 
     const handleSubmit = event => {
         event.preventDefault();
-        const { name, phone } = event.target.elements;
+        const { name, number } = event.target.elements;
 
         const person = {
-            id: nanoid(),
             name: name.value,
-            phone: phone.value,
+            number: number.value,
         };
         checkForDuplicates(person)
             ? alert(`${person.name} is already in contacts`)
-            : dispatch(addContact(person));
+            : dispatch(contactsOperations.addContact(person));
         event.target.reset();
     };
 
     const checkForDuplicates = person =>
-        contactsList.some(
+        contacts.some(
             contact => contact.name.toLowerCase() === person.name.toLowerCase()
         );
 
     return (
-        <form onSubmit={handleSubmit} id="form" className={style.contsct_form}>
+        <form onSubmit={handleSubmit} id="form">
             <label>
                 <span>Name</span>
                 <input
@@ -42,16 +41,14 @@ export const ContactForm = ({ contactsList }) => {
                 <span>Number</span>
                 <input
                     type="tel"
-                    name="phone"
+                    name="number"
                     pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-                    title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+                    title="number number must be digits and can contain spaces, dashes, parentheses and can start with +"
                     required
                 />
             </label>
 
-            <button className={style.contsct_form__submit} type="submit">
-                Add contact
-            </button>
+            <button type="submit">Add contact</button>
         </form>
     );
 };
